@@ -1,4 +1,4 @@
-let w, h;
+let w, h, graphics, imgOld;
 let imgScale = 2;
 nrPointsX = 60;
 nrPointsY = 36;
@@ -22,14 +22,21 @@ function range(n) {
 
 function setup() {
 
-  noStroke();
-
   background(0);
 
   w = 320*imgScale;
   h = 240*imgScale;
   
   createCanvas(w, h);
+  graphics = createGraphics(w, h);
+  graphics.clear();
+
+  noStroke();
+  graphics.noStroke();
+
+  
+  imgOld = null;
+
   capture = createCapture(VIDEO);
   capture.size(w, h);
   capture.hide();
@@ -91,6 +98,9 @@ function getAverage(arr, i, j) {
 }
 
 function draw() {
+
+  background(0);
+  graphics.clear();
   
   // Get rid of oldest entry
   gridHist.shift();
@@ -104,7 +114,6 @@ function draw() {
   });
 
   // Draw image
-  background(0);
   image(capture, 0, 0, w, h);
   
   // Get pixel information
@@ -130,16 +139,25 @@ function draw() {
     });
   });
 
-  range(histLen).forEach(t => {
-    range(nrPointsX).forEach(i => {
-      fill(255 * i/(nrPointsX-1), 255, 255, 200 * t/(histLen-1))
-      range(nrPointsY).forEach(j => {
-        if (gridHist[t][i][j] == 1) {
-          if (i >= histLen-t) ellipse((i - (histLen-t)) * stepX + stepX/2, j * stepY + stepY/2, r, r);
-        }
-      });
+
+  
+  range(nrPointsX).forEach(i => {
+    graphics.fill(255 * i/(nrPointsX-1), 255, 255, 200);
+    range(nrPointsY).forEach(j => {
+      if (gridHist[histLen-1][i][j] == 1) {
+        graphics.ellipse((i) * stepX + stepX/2, j * stepY + stepY/2, r, r);
+      }
     });
   });
+
+  if (imgOld != null) {
+    imgOld.loadPixels();
+    imgOld.pixels = imgOld.pixels.map((d, i) => (i+1)%4 == 0 ? max(d-10, 0) : d);
+    imgOld.updatePixels();
+    graphics._renderer.blend.call(graphics.get(), imgOld, 0, 0, w, h, 0, 0, w, h, OVERLAY);
+  }
+  imgOld = graphics.get();
+  image(graphics, 0, 0);
 
   //noLoop();
 }
