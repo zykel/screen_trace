@@ -101,7 +101,33 @@ function getAverage(arr, i, j) {
 function draw() {
 
   background(0);
-  graphics.clear();
+  //graphics.clear();
+  //tint(255,200);
+  
+  graphics.loadPixels();
+  pixelsNew = graphics.pixels;
+
+  alphFact = 0.9;
+  pxShift = 5;
+  for (var i = 0; i < pixelsNew.length; i++) {
+    if (i % (w*4) < (w-pxShift)*4) {
+      if ((i+1)%4 == 0) {
+        pixelsNew[i] = pixelsNew[i+pxShift*4] * alphFact;
+      }
+      else {
+        pixelsNew[i] = pixelsNew[i+pxShift*4];
+      }
+    }
+    else {
+      pixelsNew[i] = 0;
+    }
+  }
+  graphics.updatePixels();
+
+
+
+
+
   
   // Get rid of oldest entry
   gridHist.shift();
@@ -143,7 +169,7 @@ function draw() {
 
   
   range(nrPointsX).forEach(i => {
-    graphics.fill(255 * i/(nrPointsX-1), 255, 255, 200);
+    graphics.fill(255 * i/(nrPointsX-1), 255, 255, 100);
     range(nrPointsY).forEach(j => {
       if (gridHist[histLen-1][i][j] == 1) {
         graphics.ellipse((i) * stepX + stepX/2, j * stepY + stepY/2, r, r);
@@ -151,6 +177,7 @@ function draw() {
     });
   });
 
+  /*
   let pixelsOld, pixelsNew;
   if (imgOld != null) {
     imgOld.loadPixels();
@@ -158,7 +185,7 @@ function draw() {
     /*
     const imgNew = graphics.get();
     imgNew.loadPixels();
-    */
+    /
     pixelsOld = imgOld.pixels;
     pixelsNew = graphics.pixels;
 
@@ -167,15 +194,15 @@ function draw() {
     for (var i = 0; i < pixelsNew.length; i++) {
       // https://de.wikipedia.org/wiki/Alpha_Blending
       if (i%4 == 0) {
-        aA = pixelsOld[i+3]*alphFact;
-        aB = pixelsNew[i+3];
-        aC = aA + (1-(aA)) * aB;
+        aA = pixelsNew[i+3];
+        aB = pixelsOld[i+3]*alphFact;
+        aC = aA + (1-aA) * aB;
       }
       if ((i+1)%4 == 0) {
         pixelsNew[i] = aC;
       }
       else {
-        pixelsNew[i] = Math.round(1/aC * (aA * pixelsOld[i] + (1-aA) * aB *pixelsNew[i]));
+        pixelsNew[i] = Math.round(1/aC * (aA * pixelsNew[i] + (1-aA) * aB * pixelsOld[i]));
       }
     }
     //graphics.pixels = pixelsNew;
@@ -184,6 +211,7 @@ function draw() {
     mue = 3;
   }
   imgOld = graphics.get();
+  */
   image(graphics, 0, 0);
 
   //noLoop();
