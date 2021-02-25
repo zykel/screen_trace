@@ -28,6 +28,7 @@ function setup() {
   h = 240*imgScale;
   
   createCanvas(w, h);
+  pixelDensity(1);
   graphics = createGraphics(w, h);
   graphics.clear();
 
@@ -150,11 +151,37 @@ function draw() {
     });
   });
 
+  let pixelsOld, pixelsNew;
   if (imgOld != null) {
     imgOld.loadPixels();
-    imgOld.pixels = imgOld.pixels.map((d, i) => (i+1)%4 == 0 ? max(d-10, 0) : d);
-    imgOld.updatePixels();
-    graphics._renderer.blend.call(graphics.get(), imgOld, 0, 0, w, h, 0, 0, w, h, OVERLAY);
+    graphics.loadPixels();
+    /*
+    const imgNew = graphics.get();
+    imgNew.loadPixels();
+    */
+    pixelsOld = imgOld.pixels;
+    pixelsNew = graphics.pixels;
+
+    alphFact = 0.9;
+    let aA, aB, aC;
+    for (var i = 0; i < pixelsNew.length; i++) {
+      // https://de.wikipedia.org/wiki/Alpha_Blending
+      if (i%4 == 0) {
+        aA = pixelsOld[i+3]*alphFact;
+        aB = pixelsNew[i+3];
+        aC = aA + (1-(aA)) * aB;
+      }
+      if ((i+1)%4 == 0) {
+        pixelsNew[i] = aC;
+      }
+      else {
+        pixelsNew[i] = Math.round(1/aC * (aA * pixelsOld[i] + (1-aA) * aB *pixelsNew[i]));
+      }
+    }
+    //graphics.pixels = pixelsNew;
+    graphics.updatePixels();
+    //imgNew.updatePixels();
+    mue = 3;
   }
   imgOld = graphics.get();
   image(graphics, 0, 0);
