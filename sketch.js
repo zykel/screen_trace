@@ -1,7 +1,7 @@
 let w, h, graphics, imgOld;
 let imgScale = 2;
-nrPointsX = 60;
-nrPointsY = 36;
+nrPointsX = 40;
+nrPointsY = 24;
 avgGridOld = [];
 avgGridNew = [];
 gridHist = [];
@@ -9,7 +9,7 @@ histLen = 30;
 threshold = 5;
 downsample = 4;
 framerate = 30;
-r = 14;
+r = 3;
 
 function getStepSize(tot, nrPoints) {
   stepInit = Math.floor(tot / (nrPoints + 1));
@@ -107,8 +107,10 @@ function draw() {
   graphics.loadPixels();
   pixelsNew = graphics.pixels;
 
-  alphFact = 0.9;
+  alphFact = 0.95;
   pxShift = 5;
+  // To the left
+  /*
   for (var i = 0; i < pixelsNew.length; i++) {
     if (i % (w*4) < (w-pxShift)*4) {
       if ((i+1)%4 == 0) {
@@ -122,12 +124,41 @@ function draw() {
       pixelsNew[i] = 0;
     }
   }
+*/
+  // To the bottom
+  for (var i = pixelsNew.length; i > 0; i--) {
+    if (i > (4 * pxShift * w)) {
+      if ((i+1)%4 == 0) {
+        pixelsNew[i] = pixelsNew[i-pxShift*4*w] * alphFact;
+      }
+      else {
+        pixelsNew[i] = pixelsNew[i-pxShift*4*w];
+      }
+    }
+    else {
+      pixelsNew[i] = 0;
+    }
+  }
+
+  /*
+  // To the top
+  for (var i = 0; i < pixelsNew.length; i++) {
+    if (i < (pixelsNew.length - 4 * pxShift * w)) {
+      if ((i+1)%4 == 0) {
+        pixelsNew[i] = pixelsNew[i+pxShift*4*w] * alphFact;
+      }
+      else {
+        pixelsNew[i] = pixelsNew[i+pxShift*4*w];
+      }
+    }
+    else {
+      pixelsNew[i] = 0;
+    }
+  }
+*/
+
+
   graphics.updatePixels();
-
-
-
-
-
   
   // Get rid of oldest entry
   gridHist.shift();
@@ -165,56 +196,35 @@ function draw() {
       avgGridOld[i][j] = avgGridNew[i][j];
     });
   });
-
-
   
+
+  ellipseAlpha = 250;
+  graphics.fill(0, 255, 65, ellipseAlpha);
+  graphics.textSize(20)
+  const matrixCharacters = ['ﾊ','ﾐ','ﾋ','ｰ','ｳ','ｼ','ﾅ','ﾓ','ﾆ','ｻ','ﾜ','ﾂ','ｵ','ﾘ','ｱ','ﾎ','ﾃ','ﾏ','ｹ','ﾒ','ｴ','ｶ','ｷ','ﾑ','ﾕ','ﾗ','ｾ','ﾈ','ｽ','ﾀ','ﾇ','ﾍ'];
   range(nrPointsX).forEach(i => {
-    graphics.fill(255 * i/(nrPointsX-1), 255, 255, 100);
+    //graphics.fill(255 * i/(nrPointsX-1), 255, 255, ellipseAlpha);
     range(nrPointsY).forEach(j => {
       if (gridHist[histLen-1][i][j] == 1) {
-        graphics.ellipse((i) * stepX + stepX/2, j * stepY + stepY/2, r, r);
+        graphics.text(random(matrixCharacters), (i) * stepX + stepX/2, j * stepY + stepY/2) // Math.round(random(1))
+        //graphics.ellipse((i) * stepX + stepX/2, j * stepY + stepY/2, r, r);
       }
     });
   });
 
   /*
-  let pixelsOld, pixelsNew;
-  if (imgOld != null) {
-    imgOld.loadPixels();
-    graphics.loadPixels();
-    /*
-    const imgNew = graphics.get();
-    imgNew.loadPixels();
-    /
-    pixelsOld = imgOld.pixels;
-    pixelsNew = graphics.pixels;
+  graphics.loadPixels();
+  pixelsNew = graphics.pixels;
 
-    alphFact = 0.9;
-    let aA, aB, aC;
-    for (var i = 0; i < pixelsNew.length; i++) {
-      // https://de.wikipedia.org/wiki/Alpha_Blending
-      if (i%4 == 0) {
-        aA = pixelsNew[i+3];
-        aB = pixelsOld[i+3]*alphFact;
-        aC = aA + (1-aA) * aB;
-      }
-      if ((i+1)%4 == 0) {
-        pixelsNew[i] = aC;
-      }
-      else {
-        pixelsNew[i] = Math.round(1/aC * (aA * pixelsNew[i] + (1-aA) * aB * pixelsOld[i]));
-      }
+  for (var i = 0; i < pixelsNew.length; i++) {
+    if ((i+1)%4 == 0) {
+      pixelsNew[i] = pixelsNew[i] > ellipseAlpha ? ellipseAlpha : pixelsNew[i];
     }
-    //graphics.pixels = pixelsNew;
-    graphics.updatePixels();
-    //imgNew.updatePixels();
-    mue = 3;
   }
-  imgOld = graphics.get();
+  graphics.updatePixels();
   */
-  image(graphics, 0, 0);
 
-  //noLoop();
+  image(graphics, 0, 0);
 }
   
 
