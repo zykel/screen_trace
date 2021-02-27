@@ -1,7 +1,5 @@
 /*
 TO-DOs
-* Mirror image
-* Let grid go to the side of the screen
 * Use camera ratio for the output image ratio
 * Clean up code
 * Provide options like selection of direction
@@ -23,8 +21,7 @@ framerate = 30;
 r = 3;
 
 function getStepSize(tot, nrPoints) {
-  stepInit = Math.floor(tot / (nrPoints + 1));
-  return stepInit % 2 == 0 ? stepInit : stepInit - 1;
+  return Math.round(tot / (nrPoints + 1));
 }
 
 function range(n) {
@@ -90,20 +87,20 @@ function setup() {
 }
 
 function getAverage(arr, i, j) {
-  cx = i * stepX + stepX/2;
-  cy = j * stepY + stepY/2;
+  cx = round(i * stepX + stepX/2);
+  cy = round(j * stepY + stepY/2);
   //console.log('cx:' + cx + ' - cy:' + cy);
 
   var sum = [0, 0, 0] // [r, g b]
   range(3).forEach(k => {
-    for (var x = cx - stepX/2; x <= cx + stepX/2; x += downsample) {
-      for (var y = cy - stepY/2; y <= cy + stepY/2; y += downsample) {
+    for (var x = cx - round(stepX/2); x <= cx + round(stepX/2); x += downsample) {
+      for (var y = cy - round(stepY/2); y <= cy + round(stepY/2); y += downsample) {
         idx = (x + y * w) * 4 + k;
         sum[k] += arr[idx];
         //console.log('idx:' + idx);
       }
     }
-    sum[k] = sum[k] / (stepX * stepY);
+    sum[k] = sum[k] / round(stepX * stepY);
   });
 
   return sum;
@@ -121,7 +118,8 @@ function draw() {
   alphFact = 0.95;
   const alphDiff = 5;
   pxShift = 5;
-  // To the left
+
+  // To the right
   /*
   for (var i = 0; i < pixelsNew.length; i++) {
     if (i % (w*4) < (w-pxShift)*4) {
@@ -204,7 +202,7 @@ function draw() {
     });
   });
 
-  // Draw an ellipse at each grid point where the new avg value differs stronger from the previous one than the threshold
+  // Draw an ellipse at each grid point where the new avg value differs more strongly from the previous one than the threshold
   fill(255);
   range(nrPointsX).forEach(i => {
     range(nrPointsY).forEach(j => {
@@ -225,7 +223,7 @@ function draw() {
     //graphics.fill(255 * i/(nrPointsX-1), 255, 255, ellipseAlpha);
     range(nrPointsY).forEach(j => {
       if (gridHist[histLen-1][i][j] == 1) {
-        graphics.text(random(matrixCharacters), (i) * stepX + stepX/2, j * stepY + stepY/2) // Math.round(random(1))
+        graphics.text(random(matrixCharacters), round(i * stepX + stepX/2), round(j * stepY + stepY/2)) // Math.round(random(1))
         //graphics.ellipse((i) * stepX + stepX/2, j * stepY + stepY/2, r, r);
       }
     });
