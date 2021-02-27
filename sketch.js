@@ -9,8 +9,8 @@ TO-DOs
 
 let w, h, graphics, imgOld;
 let imgScale = 2;
-nrPointsX = 40;
-nrPointsY = 24;
+nrPointsX = 60;
+nrPointsY = 36;
 avgGridOld = [];
 avgGridNew = [];
 gridHist = [];
@@ -18,7 +18,7 @@ histLen = 30;
 threshold = 5;
 downsample = 4;
 framerate = 30;
-r = 3;
+r = 14;
 
 function getStepSize(tot, nrPoints) {
   return Math.round(tot / (nrPoints + 1));
@@ -116,11 +116,10 @@ function draw() {
   pixelsNew = graphics.pixels;
 
   alphFact = 0.95;
-  const alphDiff = 5;
-  pxShift = 5;
+  const alphDiff = 7;
+  pxShift = 8;
 
   // To the right
-  /*
   for (var i = 0; i < pixelsNew.length; i++) {
     if (i % (w*4) < (w-pxShift)*4) {
       if ((i+1)%4 == 0) {
@@ -135,7 +134,7 @@ function draw() {
       pixelsNew[i] = 0;
     }
   }
-*/
+/*
   // To the bottom
   for (var i = pixelsNew.length; i > 0; i--) {
     if (i > (4 * pxShift * w)) {
@@ -151,7 +150,7 @@ function draw() {
       pixelsNew[i] = 0;
     }
   }
-
+*/
   /*
   // To the top
   for (var i = 0; i < pixelsNew.length; i++) {
@@ -216,15 +215,15 @@ function draw() {
   
 
   ellipseAlpha = 250;
-  graphics.fill(0, 255, 65, ellipseAlpha);
+  //graphics.fill(0, 255, 65, ellipseAlpha);
   graphics.textSize(20)
   const matrixCharacters = ['ﾊ','ﾐ','ﾋ','ｰ','ｳ','ｼ','ﾅ','ﾓ','ﾆ','ｻ','ﾜ','ﾂ','ｵ','ﾘ','ｱ','ﾎ','ﾃ','ﾏ','ｹ','ﾒ','ｴ','ｶ','ｷ','ﾑ','ﾕ','ﾗ','ｾ','ﾈ','ｽ','ﾀ','ﾇ','ﾍ'];
   range(nrPointsX).forEach(i => {
-    //graphics.fill(255 * i/(nrPointsX-1), 255, 255, ellipseAlpha);
+    graphics.fill(255 * i/(nrPointsX-1), 255, 255, ellipseAlpha);
     range(nrPointsY).forEach(j => {
       if (gridHist[histLen-1][i][j] == 1) {
-        graphics.text(random(matrixCharacters), round(i * stepX + stepX/2), round(j * stepY + stepY/2)) // Math.round(random(1))
-        //graphics.ellipse((i) * stepX + stepX/2, j * stepY + stepY/2, r, r);
+        //graphics.text(random(matrixCharacters), round(i * stepX + stepX/2), round(j * stepY + stepY/2)) // Math.round(random(1))
+        graphics.ellipse(round(i * stepX + stepX/2), round(j * stepY + stepY/2), r, r);
       }
     });
   });
