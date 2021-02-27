@@ -1,3 +1,14 @@
+/*
+TO-DOs
+* Mirror image
+* Let grid go to the side of the screen
+* Use camera ratio for the output image ratio
+* Clean up code
+* Provide options like selection of direction
+* Include sound reactivity
+*/
+
+
 let w, h, graphics, imgOld;
 let imgScale = 2;
 nrPointsX = 40;
@@ -108,13 +119,15 @@ function draw() {
   pixelsNew = graphics.pixels;
 
   alphFact = 0.95;
+  const alphDiff = 5;
   pxShift = 5;
   // To the left
   /*
   for (var i = 0; i < pixelsNew.length; i++) {
     if (i % (w*4) < (w-pxShift)*4) {
       if ((i+1)%4 == 0) {
-        pixelsNew[i] = pixelsNew[i+pxShift*4] * alphFact;
+        const diff = pixelsNew[i+pxShift*4] - alphDiff;
+        pixelsNew[i] = diff > 0 ? diff : 0;
       }
       else {
         pixelsNew[i] = pixelsNew[i+pxShift*4];
@@ -129,7 +142,8 @@ function draw() {
   for (var i = pixelsNew.length; i > 0; i--) {
     if (i > (4 * pxShift * w)) {
       if ((i+1)%4 == 0) {
-        pixelsNew[i] = pixelsNew[i-pxShift*4*w] * alphFact;
+        const diff = pixelsNew[i-pxShift*4*w] - alphDiff;
+        pixelsNew[i] = diff > 0 ? diff : 0;
       }
       else {
         pixelsNew[i] = pixelsNew[i-pxShift*4*w];
@@ -145,7 +159,8 @@ function draw() {
   for (var i = 0; i < pixelsNew.length; i++) {
     if (i < (pixelsNew.length - 4 * pxShift * w)) {
       if ((i+1)%4 == 0) {
-        pixelsNew[i] = pixelsNew[i+pxShift*4*w] * alphFact;
+        const diff = pixelsNew[i+pxShift*4*w] - alphDiff;
+        pixelsNew[i] = diff > 0 ? diff : 0;
       }
       else {
         pixelsNew[i] = pixelsNew[i+pxShift*4*w];
@@ -170,6 +185,10 @@ function draw() {
       gridHist[histLen-1][i][j] = 0;
     });
   });
+
+  
+  translate(w,0); // move to far corner
+  scale(-1.0,1.0);    // flip x-axis backwards
 
   // Draw image
   image(capture, 0, 0, w, h);
@@ -225,6 +244,7 @@ function draw() {
   */
 
   image(graphics, 0, 0);
+
 }
   
 
