@@ -19,6 +19,13 @@ threshold = 5;
 downsample = 4;
 framerate = 30;
 r = 14;
+glyphAlpha = 250;
+let maxLevel = 0.000000000001;
+
+function cScale (d) {
+  return d3.color(d3.interpolatePlasma(d ))/// (nrPointsX-1)));
+  //return `${col.r}, ${col.g}, ${col.b}, ${alphaVal}`;
+} 
 
 function getStepSize(tot, nrPoints) {
   return Math.round(tot / (nrPoints + 1));
@@ -39,6 +46,10 @@ function setup() {
   pixelDensity(1);
   graphics = createGraphics(w, h);
   graphics.clear();
+
+  mic = new p5.AudioIn();
+  mic.start();
+  getAudioContext().resume();
 
   noStroke();
   graphics.noStroke();
@@ -214,12 +225,16 @@ function draw() {
   });
   
 
-  ellipseAlpha = 250;
-  //graphics.fill(0, 255, 65, ellipseAlpha);
+  //graphics.fill(0, 255, 65, glyphAlpha);
   graphics.textSize(20)
-  const matrixCharacters = ['ﾊ','ﾐ','ﾋ','ｰ','ｳ','ｼ','ﾅ','ﾓ','ﾆ','ｻ','ﾜ','ﾂ','ｵ','ﾘ','ｱ','ﾎ','ﾃ','ﾏ','ｹ','ﾒ','ｴ','ｶ','ｷ','ﾑ','ﾕ','ﾗ','ｾ','ﾈ','ｽ','ﾀ','ﾇ','ﾍ'];
+  //const matrixCharacters = ['ﾊ','ﾐ','ﾋ','ｰ','ｳ','ｼ','ﾅ','ﾓ','ﾆ','ｻ','ﾜ','ﾂ','ｵ','ﾘ','ｱ','ﾎ','ﾃ','ﾏ','ｹ','ﾒ','ｴ','ｶ','ｷ','ﾑ','ﾕ','ﾗ','ｾ','ﾈ','ｽ','ﾀ','ﾇ','ﾍ'];
+  const level = mic.getLevel();
+  maxLevel = level > maxLevel ? level : maxLevel;
+  const col = cScale(level / maxLevel);
+  graphics.fill(col.r, col.g, col.b, glyphAlpha);
   range(nrPointsX).forEach(i => {
-    graphics.fill(255 * i/(nrPointsX-1), 255, 255, ellipseAlpha);
+    //const col = cScale(i);
+    //graphics.fill(col.r, col.g, col.b, glyphAlpha);
     range(nrPointsY).forEach(j => {
       if (gridHist[histLen-1][i][j] == 1) {
         //graphics.text(random(matrixCharacters), round(i * stepX + stepX/2), round(j * stepY + stepY/2)) // Math.round(random(1))
@@ -228,25 +243,13 @@ function draw() {
     });
   });
 
-  /*
-  graphics.loadPixels();
-  pixelsNew = graphics.pixels;
-
-  for (var i = 0; i < pixelsNew.length; i++) {
-    if ((i+1)%4 == 0) {
-      pixelsNew[i] = pixelsNew[i] > ellipseAlpha ? ellipseAlpha : pixelsNew[i];
-    }
-  }
-  graphics.updatePixels();
-  */
-
   image(graphics, 0, 0);
-
+  
 }
   
 
 function touchStarted() {
-  getAudioContext().resume();
+  userStartAudio();
 }
 
 
