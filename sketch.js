@@ -7,7 +7,7 @@ TO-DOs
 */
 
 
-let w, h, graphics, imgOld;
+let w, h, graphics, imgOld, mic;
 let imgScale = 2;
 nrPointsX = 60;
 nrPointsY = 36;
@@ -21,6 +21,9 @@ framerate = 30;
 r = 14;
 glyphAlpha = 250;
 let maxLevel = 0.000000000001;
+maxC = 250;
+c = 0;
+up = true;
 
 function cScale (d) {
   return d3.color(d3.interpolatePlasma(d ))/// (nrPointsX-1)));
@@ -41,6 +44,8 @@ function setup() {
 
   w = 320*imgScale;
   h = 240*imgScale;
+
+  console.log(windowWidth);
   
   createCanvas(w, h);
   pixelDensity(1);
@@ -230,7 +235,11 @@ function draw() {
   //const matrixCharacters = ['ﾊ','ﾐ','ﾋ','ｰ','ｳ','ｼ','ﾅ','ﾓ','ﾆ','ｻ','ﾜ','ﾂ','ｵ','ﾘ','ｱ','ﾎ','ﾃ','ﾏ','ｹ','ﾒ','ｴ','ｶ','ｷ','ﾑ','ﾕ','ﾗ','ｾ','ﾈ','ｽ','ﾀ','ﾇ','ﾍ'];
   const level = mic.getLevel();
   maxLevel = level > maxLevel ? level : maxLevel;
-  const col = cScale(level / maxLevel);
+  //const col = cScale(level / maxLevel);
+  if (c == 0) up = true;
+  if (c == maxC) up = false;
+  c = up ? c+1 : c-1;
+  const col = cScale(c / maxC);
   graphics.fill(col.r, col.g, col.b, glyphAlpha);
   range(nrPointsX).forEach(i => {
     //const col = cScale(i);
