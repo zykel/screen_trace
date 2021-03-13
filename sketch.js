@@ -7,7 +7,7 @@ TO-DOs
 */
 
 
-let w, h, graphics, imgOld, mic;
+let w, h, graphics, imgOld;
 let imgScale = 2;
 nrPointsX = 60;
 nrPointsY = 36;
@@ -15,19 +15,20 @@ avgGridOld = [];
 avgGridNew = [];
 gridHist = [];
 histLen = 30;
+thresholdMax = 11;
+thresholdStep = 4;
+thresholdBase = 3;
 threshold = 5;
 downsample = 4;
 framerate = 30;
 r = 14;
-glyphAlpha = 250;
-let maxLevel = 0.000000000001;
-maxC = 250;
+glyphAlpha = 150;
+maxC = 75;
 c = 0;
 up = true;
 
 function cScale (d) {
-  return d3.color(d3.interpolatePlasma(d ))/// (nrPointsX-1)));
-  //return `${col.r}, ${col.g}, ${col.b}, ${alphaVal}`;
+  return d3.color(d3.interpolateWarm(d ));
 } 
 
 function getStepSize(tot, nrPoints) {
@@ -51,10 +52,6 @@ function setup() {
   pixelDensity(1);
   graphics = createGraphics(w, h);
   graphics.clear();
-
-  mic = new p5.AudioIn();
-  mic.start();
-  getAudioContext().resume();
 
   noStroke();
   graphics.noStroke();
@@ -87,17 +84,12 @@ function setup() {
   });
 
   // Dummy for gridHistory
-  range(histLen).forEach(t => {
+  range(nrPointsX).forEach(i => {
     gridHist.push([]);
-    range(nrPointsX).forEach(i => {
-      gridHist[t].push([]);
-      range(nrPointsY).forEach(j => {
-        gridHist[t][i][j] = 0;
-      });
+    range(nrPointsY).forEach(j => {
+      gridHist[i][j] = 0;
     });
   });
-
-  console.log(gridHist);
   
   frameRate(framerate);
 }
@@ -188,18 +180,6 @@ function draw() {
 
   graphics.updatePixels();
   
-  // Get rid of oldest entry
-  gridHist.shift();
-  // Append dummy for new entry
-  gridHist.push([])
-  range(nrPointsX).forEach(i => {
-    gridHist[histLen-1].push([]);
-    range(nrPointsY).forEach(j => {
-      gridHist[histLen-1][i][j] = 0;
-    });
-  });
-
-  
   translate(w,0); // move to far corner
   scale(-1.0,1.0);    // flip x-axis backwards
 
@@ -217,49 +197,31 @@ function draw() {
     });
   });
 
-  // Draw an ellipse at each grid point where the new avg value differs more strongly from the previous one than the threshold
-  fill(255);
-  range(nrPointsX).forEach(i => {
-    range(nrPointsY).forEach(j => {
-      if (dist(...avgGridOld[i][j], ...avgGridNew[i][j]) > threshold){
-        gridHist[histLen - 1][i][j] = 1;
-        //ellipse(i * stepX + stepX/2, j * stepY + stepY/2, 5, 5);
-      }
-      avgGridOld[i][j] = avgGridNew[i][j];
-    });
-  });
-  
-
-  //graphics.fill(0, 255, 65, glyphAlpha);
   graphics.textSize(20)
   //const matrixCharacters = ['ﾊ','ﾐ','ﾋ','ｰ','ｳ','ｼ','ﾅ','ﾓ','ﾆ','ｻ','ﾜ','ﾂ','ｵ','ﾘ','ｱ','ﾎ','ﾃ','ﾏ','ｹ','ﾒ','ｴ','ｶ','ｷ','ﾑ','ﾕ','ﾗ','ｾ','ﾈ','ｽ','ﾀ','ﾇ','ﾍ'];
-  const level = mic.getLevel();
-  maxLevel = level > maxLevel ? level : maxLevel;
-  //const col = cScale(level / maxLevel);
+  
   if (c == 0) up = true;
   if (c == maxC) up = false;
   c = up ? c+1 : c-1;
   const col = cScale(c / maxC);
+
   graphics.fill(col.r, col.g, col.b, glyphAlpha);
   range(nrPointsX).forEach(i => {
     //const col = cScale(i);
     //graphics.fill(col.r, col.g, col.b, glyphAlpha);
     range(nrPointsY).forEach(j => {
-      if (gridHist[histLen-1][i][j] == 1) {
+      if (dist(...avgGridOld[i][j], ...avgGridNew[i][j]) > threshold) {
         //graphics.text(random(matrixCharacters), round(i * stepX + stepX/2), round(j * stepY + stepY/2)) // Math.round(random(1))
         graphics.ellipse(round(i * stepX + stepX/2), round(j * stepY + stepY/2), r, r);
       }
+      avgGridOld[i][j] = avgGridNew[i][j];
     });
   });
 
   image(graphics, 0, 0);
   
 }
-  
 
-function touchStarted() {
-  userStartAudio();
+function mouseClicked() {
+  threshold = threshold - thresholdStep < thresholdBase ? thresholdMax : threshold - thresholdStep;
 }
-
-
-
